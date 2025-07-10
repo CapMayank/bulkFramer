@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Bulk School Photo Frame System</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+				background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+				min-height: 100vh;
+				padding: 20px;
+			}
+
+			.container {
+				max-width: 1200px;
+				margin: 0 auto;
+				background: white;
+				border-radius: 20px;
+				box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+				overflow: hidden;
+			}
+
+			.header {
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				color: white;
+				padding: 30px;
+				text-align: center;
+			}
+
+			.header h1 {
+				font-size: 2.5em;
+				margin-bottom: 10px;
+				font-weight: 300;
+			}
+
+			.header p {
+				font-size: 1.1em;
+				opacity: 0.9;
+			}
+
+			.main-content {
+				padding: 40px;
+			}
+
+			.upload-section {
+				margin-bottom: 40px;
+			}
+
+			.bulk-upload-area {
+				border: 3px dashed #e0e0e0;
+				border-radius: 15px;
+				padding: 50px;
+				text-align: center;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				background: #fafafa;
+			}
+
+			.bulk-upload-area:hover {
+				background: #f0f8ff;
+				border-color: #4a90e2;
+			}
+
+			.bulk-upload-area.dragover {
+				background: #f0f8ff;
+				border-color: #4a90e2;
+				transform: scale(1.01);
+			}
+
+			.upload-icon {
+				font-size: 4em;
+				margin-bottom: 20px;
+				color: #4a90e2;
+			}
+
+			.upload-text {
+				font-size: 1.3em;
+				color: #333;
+				margin-bottom: 10px;
+				font-weight: 500;
+			}
+
+			.upload-hint {
+				color: #666;
+				font-size: 1em;
+			}
+
+			#bulkFileInput {
+				display: none;
+			}
+
+			.settings-panel {
+				background: #f8f9fa;
+				border-radius: 15px;
+				padding: 30px;
+				margin-bottom: 40px;
+				border: 1px solid #e9ecef;
+			}
+
+			.settings-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+				gap: 25px;
+				margin-bottom: 30px;
+			}
+
+			.setting-group {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+			}
+
+			.setting-group label {
+				font-weight: 600;
+				color: #333;
+				font-size: 0.95em;
+			}
+
+			.setting-group input,
+			.setting-group select,
+			.setting-group textarea {
+				padding: 12px;
+				border: 2px solid #e0e0e0;
+				border-radius: 8px;
+				font-size: 1em;
+				transition: border-color 0.3s ease;
+			}
+
+			.setting-group input:focus,
+			.setting-group select:focus,
+			.setting-group textarea:focus {
+				outline: none;
+				border-color: #4a90e2;
+			}
+
+			.logo-upload-section {
+				margin-top: 20px;
+			}
+
+			.logo-preview {
+				width: 60px;
+				height: 60px;
+				border-radius: 8px;
+				border: 2px solid #e0e0e0;
+				object-fit: contain;
+				background: white;
+				padding: 5px;
+				margin-top: 10px;
+			}
+
+			.progress-section {
+				margin-bottom: 30px;
+			}
+
+			.progress-bar {
+				width: 100%;
+				height: 8px;
+				background: #e0e0e0;
+				border-radius: 4px;
+				overflow: hidden;
+				margin-bottom: 10px;
+			}
+
+			.progress-fill {
+				height: 100%;
+				background: linear-gradient(90deg, #4a90e2, #667eea);
+				width: 0%;
+				transition: width 0.3s ease;
+			}
+
+			.progress-text {
+				text-align: center;
+				color: #666;
+				font-size: 0.9em;
+			}
+
+			.preview-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+				gap: 25px;
+				margin-bottom: 30px;
+			}
+
+			.photo-preview {
+				background: white;
+				border-radius: 12px;
+				overflow: hidden;
+				box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+				transition: transform 0.3s ease;
+			}
+
+			.photo-preview:hover {
+				transform: translateY(-5px);
+			}
+
+			.framed-photo {
+				position: relative;
+				width: 100%;
+				aspect-ratio: 3/4;
+				background: #f8f9fa;
+				border: 4px solid white;
+				box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+				border-radius: 8px;
+			}
+
+			.photo-content {
+				width: 100%;
+				height: 100%;
+				position: relative;
+				background: #f8f9fa;
+				border-radius: 4px;
+				overflow: hidden;
+			}
+
+			.actual-photo {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+
+			.top-branding {
+				position: absolute;
+				top: 15px;
+				left: 15px;
+				right: 15px;
+				padding: 12px;
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				z-index: 10;
+			}
+
+			.logo-img {
+				width: 40px;
+				height: 40px;
+				object-fit: contain;
+				filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.7));
+			}
+
+			.school-info {
+				flex: 1;
+			}
+
+			.school-name {
+				font-size: 0.85em;
+				font-weight: 700;
+				color: white;
+				line-height: 1.2;
+				margin-bottom: 2px;
+				text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+			}
+
+			.event-title {
+				font-size: 0.75em;
+				color: white;
+				font-weight: 500;
+				text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+			}
+
+			.bottom-branding {
+				position: absolute;
+				bottom: 15px;
+				left: 15px;
+				right: 15px;
+				padding: 10px;
+				text-align: center;
+				z-index: 10;
+			}
+
+			.bottom-text {
+				font-size: 0.8em;
+				font-weight: 600;
+				color: white;
+				text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+			}
+
+			.file-name {
+				padding: 12px;
+				background: #f8f9fa;
+				font-size: 0.85em;
+				color: #666;
+				border-top: 1px solid #e9ecef;
+			}
+
+			.action-buttons {
+				display: flex;
+				gap: 15px;
+				justify-content: center;
+				margin-top: 30px;
+			}
+
+			.btn {
+				padding: 15px 30px;
+				border: none;
+				border-radius: 25px;
+				font-size: 1.1em;
+				font-weight: 600;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				text-decoration: none;
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.btn-primary {
+				background: linear-gradient(135deg, #667eea, #764ba2);
+				color: white;
+			}
+
+			.btn-primary:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+			}
+
+			.btn-secondary {
+				background: #f8f9fa;
+				color: #333;
+				border: 2px solid #e0e0e0;
+			}
+
+			.btn-secondary:hover {
+				background: #e9ecef;
+				border-color: #4a90e2;
+			}
+
+			.btn:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+				transform: none;
+			}
+
+			.stats {
+				display: flex;
+				gap: 30px;
+				justify-content: center;
+				margin-bottom: 30px;
+				flex-wrap: wrap;
+			}
+
+			.stat-item {
+				text-align: center;
+				padding: 20px;
+				background: #f8f9fa;
+				border-radius: 12px;
+				min-width: 120px;
+			}
+
+			.stat-number {
+				font-size: 2em;
+				font-weight: 700;
+				color: #4a90e2;
+			}
+
+			.stat-label {
+				font-size: 0.9em;
+				color: #666;
+				margin-top: 5px;
+			}
+
+			@media (max-width: 768px) {
+				.settings-grid {
+					grid-template-columns: 1fr;
+				}
+
+				.preview-grid {
+					grid-template-columns: 1fr;
+				}
+
+				.action-buttons {
+					flex-direction: column;
+					align-items: center;
+				}
+
+				.stats {
+					flex-direction: column;
+					align-items: center;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h1>📸 Bulk School Photo Frame System</h1>
+				<p>Professional photo framing for school events and programs</p>
+			</div>
+
+			<div class="main-content">
+				<div class="upload-section">
+					<div class="bulk-upload-area" id="bulkUploadArea">
+						<div class="upload-icon">📁</div>
+						<div class="upload-text">
+							Drop multiple photos here or click to browse
+						</div>
+						<div class="upload-hint">
+							Supports JPG, PNG, WEBP • Select multiple files for bulk
+							processing
+						</div>
+					</div>
+					<input type="file" id="bulkFileInput" accept="image/*" multiple />
+				</div>
+
+				<div class="settings-panel">
+					<h3 style="margin-bottom: 20px; color: #333; font-size: 1.3em">
+						📋 Frame Settings
+					</h3>
+
+					<div class="settings-grid">
+						<div class="setting-group">
+							<label for="schoolName">School Name:</label>
+							<input
+								type="text"
+								id="schoolName"
+								value="Sarvodaya Higher Secondary School Lakhnadon"
+								placeholder="Enter school name"
+							/>
+						</div>
+
+						<div class="setting-group">
+							<label for="eventName">Event/Program Name:</label>
+							<input
+								type="text"
+								id="eventName"
+								value="Annual Function 2025"
+								placeholder="Enter event name"
+							/>
+						</div>
+
+						<div class="setting-group">
+							<label for="bottomText">Bottom Text:</label>
+							<input
+								type="text"
+								id="bottomText"
+								value="Academic Excellence"
+								placeholder="Enter bottom text"
+							/>
+						</div>
+
+						<div class="setting-group">
+							<label for="frameMargin">Frame Margin (px):</label>
+							<input
+								type="number"
+								id="frameMargin"
+								value="50"
+								min="30"
+								max="100"
+							/>
+						</div>
+					</div>
+
+					<div class="logo-upload-section">
+						<div class="setting-group">
+							<label for="logoInput">School Logo (PNG recommended):</label>
+							<input type="file" id="logoInput" accept="image/*" />
+							<img
+								id="logoPreview"
+								class="logo-preview"
+								style="display: none"
+								alt="Logo Preview"
+							/>
+						</div>
+					</div>
+				</div>
+
+				<div
+					class="progress-section"
+					id="progressSection"
+					style="display: none"
+				>
+					<div class="progress-bar">
+						<div class="progress-fill" id="progressFill"></div>
+					</div>
+					<div class="progress-text" id="progressText">
+						Processing photos...
+					</div>
+				</div>
+
+				<div class="stats" id="statsSection" style="display: none">
+					<div class="stat-item">
+						<div class="stat-number" id="totalPhotos">0</div>
+						<div class="stat-label">Total Photos</div>
+					</div>
+					<div class="stat-item">
+						<div class="stat-number" id="processedPhotos">0</div>
+						<div class="stat-label">Processed</div>
+					</div>
+					<div class="stat-item">
+						<div class="stat-number" id="readyPhotos">0</div>
+						<div class="stat-label">Ready</div>
+					</div>
+				</div>
+
+				<div class="preview-grid" id="previewGrid"></div>
+
+				<div class="action-buttons">
+					<button class="btn btn-primary" id="processBtn" disabled>
+						🎨 Process All Photos
+					</button>
+					<button class="btn btn-secondary" id="downloadAllBtn" disabled>
+						📦 Download All as ZIP
+					</button>
+					<button class="btn btn-secondary" id="clearBtn">🗑️ Clear All</button>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+		<script>
+			const bulkFileInput = document.getElementById("bulkFileInput");
+			const bulkUploadArea = document.getElementById("bulkUploadArea");
+			const previewGrid = document.getElementById("previewGrid");
+			const processBtn = document.getElementById("processBtn");
+			const downloadAllBtn = document.getElementById("downloadAllBtn");
+			const clearBtn = document.getElementById("clearBtn");
+			const logoInput = document.getElementById("logoInput");
+			const logoPreview = document.getElementById("logoPreview");
+			const progressSection = document.getElementById("progressSection");
+			const progressFill = document.getElementById("progressFill");
+			const progressText = document.getElementById("progressText");
+			const statsSection = document.getElementById("statsSection");
+			const totalPhotos = document.getElementById("totalPhotos");
+			const processedPhotos = document.getElementById("processedPhotos");
+			const readyPhotos = document.getElementById("readyPhotos");
+
+			let uploadedFiles = [];
+			let processedFrames = [];
+			let schoolLogo = null;
+
+			// Upload area interactions
+			bulkUploadArea.addEventListener("click", () => bulkFileInput.click());
+			bulkUploadArea.addEventListener("dragover", (e) => {
+				e.preventDefault();
+				bulkUploadArea.classList.add("dragover");
+			});
+			bulkUploadArea.addEventListener("dragleave", () => {
+				bulkUploadArea.classList.remove("dragover");
+			});
+			bulkUploadArea.addEventListener("drop", (e) => {
+				e.preventDefault();
+				bulkUploadArea.classList.remove("dragover");
+				const files = Array.from(e.dataTransfer.files);
+				handleFiles(files);
+			});
+
+			bulkFileInput.addEventListener("change", (e) => {
+				const files = Array.from(e.target.files);
+				handleFiles(files);
+			});
+
+			logoInput.addEventListener("change", (e) => {
+				const file = e.target.files[0];
+				if (file) {
+					const reader = new FileReader();
+					reader.onload = (e) => {
+						schoolLogo = e.target.result;
+						logoPreview.src = schoolLogo;
+						logoPreview.style.display = "block";
+					};
+					reader.readAsDataURL(file);
+				}
+			});
+
+			function handleFiles(files) {
+				const imageFiles = files.filter((file) =>
+					file.type.startsWith("image/")
+				);
+				uploadedFiles = [...uploadedFiles, ...imageFiles];
+
+				updateStats();
+				displayPreviews();
+				processBtn.disabled = uploadedFiles.length === 0;
+			}
+
+			function updateStats() {
+				totalPhotos.textContent = uploadedFiles.length;
+				processedPhotos.textContent = processedFrames.length;
+				readyPhotos.textContent = processedFrames.filter((f) => f.ready).length;
+
+				if (uploadedFiles.length > 0) {
+					statsSection.style.display = "flex";
+				}
+			}
+
+			function displayPreviews() {
+				previewGrid.innerHTML = "";
+				uploadedFiles.forEach((file, index) => {
+					const preview = createPreview(file, index);
+					previewGrid.appendChild(preview);
+				});
+			}
+
+			function createPreview(file, index) {
+				const reader = new FileReader();
+				const previewDiv = document.createElement("div");
+				previewDiv.className = "photo-preview";
+				previewDiv.innerHTML = `
+                <div class="framed-photo">
+                    <div class="photo-content">
+                        <div class="top-branding">
+                            <img class="logo-img" src="${
+															schoolLogo ||
+															"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iIzRhOTBlMiIvPgo8dGV4dCB4PSIyMCIgeT0iMjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSJib2xkIj5TPC90ZXh0Pgo8L3N2Zz4K"
+														}" alt="School Logo">
+                            <div class="school-info">
+                                <div class="school-name">${
+																	document.getElementById("schoolName").value
+																}</div>
+                                <div class="event-title">${
+																	document.getElementById("eventName").value
+																}</div>
+                            </div>
+                        </div>
+                        <img class="actual-photo" src="" alt="Student Photo">
+                        <div class="bottom-branding">
+                            <div class="bottom-text">${
+															document.getElementById("bottomText").value
+														}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="file-name">${file.name}</div>
+            `;
+
+				reader.onload = (e) => {
+					const img = previewDiv.querySelector(".actual-photo");
+					img.src = e.target.result;
+				};
+				reader.readAsDataURL(file);
+
+				return previewDiv;
+			}
+
+			processBtn.addEventListener("click", async () => {
+				if (uploadedFiles.length === 0) return;
+
+				progressSection.style.display = "block";
+				processBtn.disabled = true;
+				processedFrames = [];
+
+				for (let i = 0; i < uploadedFiles.length; i++) {
+					const file = uploadedFiles[i];
+					const progress = ((i + 1) / uploadedFiles.length) * 100;
+
+					progressFill.style.width = progress + "%";
+					progressText.textContent = `Processing ${i + 1} of ${
+						uploadedFiles.length
+					} photos...`;
+
+					const frameData = await processPhoto(file);
+					processedFrames.push(frameData);
+					updateStats();
+
+					// Small delay to prevent UI blocking
+					await new Promise((resolve) => setTimeout(resolve, 50));
+				}
+
+				progressSection.style.display = "none";
+				downloadAllBtn.disabled = false;
+				processBtn.disabled = false;
+			});
+
+			async function processPhoto(file) {
+				return new Promise((resolve) => {
+					const reader = new FileReader();
+					reader.onload = (e) => {
+						const canvas = document.createElement("canvas");
+						const ctx = canvas.getContext("2d");
+
+						const img = new Image();
+						img.onload = () => {
+							// Set consistent canvas size based on aspect ratio
+							const isPortrait = img.height > img.width;
+							const baseSize = 1000; // Base size for consistent framing
+							
+							if (isPortrait) {
+								canvas.width = baseSize;
+								canvas.height = (baseSize * 4) / 3; // 3:4 aspect ratio
+							} else {
+								canvas.width = (baseSize * 4) / 3; // 4:3 aspect ratio
+								canvas.height = baseSize;
+							}
+
+							// Draw original photo to fit canvas
+							ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+							// Fixed margin and frame settings
+							const margin = parseInt(document.getElementById("frameMargin").value);
+							const frameWidth = 8;
+
+							// Draw white frame lines
+							ctx.strokeStyle = "white";
+							ctx.lineWidth = frameWidth;
+							ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+							ctx.shadowBlur = 8;
+							ctx.shadowOffsetX = 2;
+							ctx.shadowOffsetY = 2;
+
+							ctx.beginPath();
+							ctx.rect(
+								margin,
+								margin,
+								canvas.width - margin * 2,
+								canvas.height - margin * 2
+							);
+							ctx.stroke();
+
+							// Reset shadow
+							ctx.shadowColor = "transparent";
+							ctx.shadowBlur = 0;
+							ctx.shadowOffsetX = 0;
+							ctx.shadowOffsetY = 0;
+
+							// Fixed sizing for consistent appearance
+							const logoSize = 60; // Fixed logo size
+							const topY = margin + 20;
+							const topX = margin + 20;
+
+							// School logo
+							if (schoolLogo) {
+								const logoImg = new Image();
+								logoImg.onload = () => {
+									ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+									ctx.shadowBlur = 8;
+									ctx.shadowOffsetX = 2;
+									ctx.shadowOffsetY = 2;
+									ctx.drawImage(logoImg, topX, topY, logoSize, logoSize);
+									ctx.shadowColor = "transparent";
+									ctx.shadowBlur = 0;
+									ctx.shadowOffsetX = 0;
+									ctx.shadowOffsetY = 0;
+									finishFrame();
+								};
+								logoImg.src = schoolLogo;
+							} else {
+								finishFrame();
+							}
+
+							function finishFrame() {
+								// Fixed font sizes for consistency
+								const schoolNameSize = 32;
+								const eventNameSize = 24;
+								const bottomTextSize = 28;
+
+								// Text positioning
+								const textStartX = schoolLogo ? topX + logoSize + 15 : topX;
+								const schoolNameY = topY + schoolNameSize;
+								const eventNameY = schoolNameY + eventNameSize + 5;
+
+								// School name with shadow
+								ctx.fillStyle = "white";
+								ctx.font = `bold ${schoolNameSize}px Arial, sans-serif`;
+								ctx.textAlign = "left";
+
+								// Text shadow
+								ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+								ctx.shadowBlur = 6;
+								ctx.shadowOffsetX = 2;
+								ctx.shadowOffsetY = 2;
+
+								ctx.fillText(
+									document.getElementById("schoolName").value,
+									textStartX,
+									schoolNameY
+								);
+
+								// Event name with shadow
+								ctx.font = `${eventNameSize}px Arial, sans-serif`;
+								ctx.fillText(
+									document.getElementById("eventName").value,
+									textStartX,
+									eventNameY
+								);
+
+								// Bottom text with shadow
+								const bottomY = canvas.height - margin - 25;
+								ctx.font = `bold ${bottomTextSize}px Arial, sans-serif`;
+								ctx.textAlign = "center";
+								ctx.fillText(
+									document.getElementById("bottomText").value,
+									canvas.width / 2,
+									bottomY
+								);
+
+								// Reset shadow
+								ctx.shadowColor = "transparent";
+								ctx.shadowBlur = 0;
+								ctx.shadowOffsetX = 0;
+								ctx.shadowOffsetY = 0;
+
+								resolve({
+									canvas: canvas,
+									filename: file.name.replace(/\.[^/.]+$/, "") + "_framed.png",
+									ready: true,
+								});
+							}
+						};
+						img.src = e.target.result;
+					};
+					reader.readAsDataURL(file);
+				});
+			}
+
+			downloadAllBtn.addEventListener("click", async () => {
+				if (processedFrames.length === 0) return;
+
+				downloadAllBtn.disabled = true;
+				downloadAllBtn.textContent = "📦 Creating ZIP...";
+
+				try {
+					const zip = new JSZip();
+					const folder = zip.folder("framed_photos");
+
+					// Add all processed frames to ZIP
+					processedFrames.forEach((frame, index) => {
+						const dataUrl = frame.canvas.toDataURL("image/png");
+						const base64Data = dataUrl.split(",")[1];
+						folder.file(frame.filename, base64Data, { base64: true });
+					});
+
+					// Generate ZIP file
+					const zipBlob = await zip.generateAsync({ type: "blob" });
+					
+					// Create download link
+					const link = document.createElement("a");
+					link.href = URL.createObjectURL(zipBlob);
+					link.download = `framed_photos_${new Date().toISOString().split('T')[0]}.zip`;
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+
+					// Clean up
+					URL.revokeObjectURL(link.href);
+					
+				} catch (error) {
+					console.error("Error creating ZIP:", error);
+					alert("Error creating ZIP file. Please try again.");
+				} finally {
+					downloadAllBtn.disabled = false;
+					downloadAllBtn.textContent = "📦 Download All as ZIP";
+				}
+			});
+
+			clearBtn.addEventListener("click", () => {
+				uploadedFiles = [];
+				processedFrames = [];
+				previewGrid.innerHTML = "";
+				processBtn.disabled = true;
+				downloadAllBtn.disabled = true;
+				progressSection.style.display = "none";
+				statsSection.style.display = "none";
+				bulkFileInput.value = "";
+			});
+		</script>
+	</body>
+</html>
