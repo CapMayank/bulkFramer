@@ -1,3 +1,5 @@
+<!-- @format -->
+
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -449,7 +451,7 @@
 							<input
 								type="number"
 								id="frameMargin"
-								value="50"
+								value="20"
 								min="30"
 								max="100"
 							/>
@@ -679,7 +681,7 @@
 							// Set consistent canvas size based on aspect ratio
 							const isPortrait = img.height > img.width;
 							const baseSize = 1000; // Base size for consistent framing
-							
+
 							if (isPortrait) {
 								canvas.width = baseSize;
 								canvas.height = (baseSize * 4) / 3; // 3:4 aspect ratio
@@ -691,47 +693,146 @@
 							// Draw original photo to fit canvas
 							ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-							// Fixed margin and frame settings
-							const margin = parseInt(document.getElementById("frameMargin").value);
-							const frameWidth = 8;
+							// Modern minimalistic design parameters
+							const margin = parseInt(
+								document.getElementById("frameMargin").value
+							);
+							const cornerRadius = 16;
+							const overlayOpacity = 0.12;
 
-							// Draw white frame lines
+							// Create subtle gradient overlay for depth
+							const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+							gradient.addColorStop(0, `rgba(0, 0, 0, ${overlayOpacity})`);
+							gradient.addColorStop(1, `rgba(0, 0, 0, 0)`);
+							ctx.fillStyle = gradient;
+							ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+							// Modern layered frame design with thicker appearance
+							const frameX = margin;
+							const frameY = margin;
+							const frameW = canvas.width - margin * 2;
+							const frameH = canvas.height - margin * 2;
+
+							// Create a thick modern frame with multiple layers
+
+							// Outer frame - main border
 							ctx.strokeStyle = "white";
-							ctx.lineWidth = frameWidth;
+							ctx.lineWidth = 8;
 							ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
-							ctx.shadowBlur = 8;
-							ctx.shadowOffsetX = 2;
-							ctx.shadowOffsetY = 2;
-
+							ctx.shadowBlur = 12;
+							ctx.shadowOffsetX = 0;
+							ctx.shadowOffsetY = 4;
 							ctx.beginPath();
-							ctx.rect(
-								margin,
-								margin,
-								canvas.width - margin * 2,
-								canvas.height - margin * 2
+							ctx.roundRect(frameX, frameY, frameW, frameH, cornerRadius);
+							ctx.stroke();
+
+							// Inner accent frame
+							ctx.shadowBlur = 0;
+							ctx.shadowOffsetX = 0;
+							ctx.shadowOffsetY = 0;
+							ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+							ctx.lineWidth = 2;
+							ctx.beginPath();
+							ctx.roundRect(
+								frameX + 12,
+								frameY + 12,
+								frameW - 24,
+								frameH - 24,
+								cornerRadius - 6
 							);
 							ctx.stroke();
 
-							// Reset shadow
+							// Corner accent elements - modern geometric style
+							const accentSize = 24;
+							const accentThickness = 4;
+							ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+							ctx.lineWidth = accentThickness;
+
+							// Top-left corner accent
+							ctx.beginPath();
+							ctx.moveTo(frameX + cornerRadius + 5, frameY - 10);
+							ctx.lineTo(frameX + cornerRadius + accentSize, frameY - 10);
+							ctx.moveTo(frameX - 10, frameY + cornerRadius + 5);
+							ctx.lineTo(frameX - 10, frameY + cornerRadius + accentSize);
+							ctx.stroke();
+
+							// Top-right corner accent
+							ctx.beginPath();
+							ctx.moveTo(
+								frameX + frameW - cornerRadius - accentSize,
+								frameY - 10
+							);
+							ctx.lineTo(frameX + frameW - cornerRadius - 5, frameY - 10);
+							ctx.moveTo(frameX + frameW + 10, frameY + cornerRadius + 5);
+							ctx.lineTo(
+								frameX + frameW + 10,
+								frameY + cornerRadius + accentSize
+							);
+							ctx.stroke();
+
+							// Bottom-left corner accent
+							ctx.beginPath();
+							ctx.moveTo(frameX + cornerRadius + 5, frameY + frameH + 10);
+							ctx.lineTo(
+								frameX + cornerRadius + accentSize,
+								frameY + frameH + 10
+							);
+							ctx.moveTo(
+								frameX - 10,
+								frameY + frameH - cornerRadius - accentSize
+							);
+							ctx.lineTo(frameX - 10, frameY + frameH - cornerRadius - 5);
+							ctx.stroke();
+
+							// Bottom-right corner accent
+							ctx.beginPath();
+							ctx.moveTo(
+								frameX + frameW - cornerRadius - accentSize,
+								frameY + frameH + 10
+							);
+							ctx.lineTo(
+								frameX + frameW - cornerRadius - 5,
+								frameY + frameH + 10
+							);
+							ctx.moveTo(
+								frameX + frameW + 10,
+								frameY + frameH - cornerRadius - accentSize
+							);
+							ctx.lineTo(
+								frameX + frameW + 10,
+								frameY + frameH - cornerRadius - 5
+							);
+							ctx.stroke();
+
+							// Reset all effects
 							ctx.shadowColor = "transparent";
 							ctx.shadowBlur = 0;
 							ctx.shadowOffsetX = 0;
 							ctx.shadowOffsetY = 0;
 
-							// Fixed sizing for consistent appearance
-							const logoSize = 60; // Fixed logo size
+							// Modern layout positioning
+							const logoSize = 60; // Back to original size
 							const topY = margin + 20;
 							const topX = margin + 20;
 
-							// School logo
+							// School logo with modern styling
 							if (schoolLogo) {
 								const logoImg = new Image();
 								logoImg.onload = () => {
-									ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
-									ctx.shadowBlur = 8;
-									ctx.shadowOffsetX = 2;
+									// Subtle logo shadow
+									ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+									ctx.shadowBlur = 4;
+									ctx.shadowOffsetX = 0;
 									ctx.shadowOffsetY = 2;
+
+									// Draw logo with subtle border radius effect
+									ctx.save();
+									ctx.beginPath();
+									ctx.roundRect(topX, topY, logoSize, logoSize, 8);
+									ctx.clip();
 									ctx.drawImage(logoImg, topX, topY, logoSize, logoSize);
+									ctx.restore();
+
 									ctx.shadowColor = "transparent";
 									ctx.shadowBlur = 0;
 									ctx.shadowOffsetX = 0;
@@ -744,26 +845,29 @@
 							}
 
 							function finishFrame() {
-								// Fixed font sizes for consistency
+								// Attractive typography with original sizing
 								const schoolNameSize = 32;
 								const eventNameSize = 24;
 								const bottomTextSize = 28;
 
-								// Text positioning
+								// Typography positioning
 								const textStartX = schoolLogo ? topX + logoSize + 15 : topX;
 								const schoolNameY = topY + schoolNameSize;
 								const eventNameY = schoolNameY + eventNameSize + 5;
 
-								// School name with shadow
+								// Set attractive font stack
+								const primaryFont = "Arial, sans-serif";
+
+								// School name with attractive styling
 								ctx.fillStyle = "white";
-								ctx.font = `bold ${schoolNameSize}px Arial, sans-serif`;
+								ctx.font = `bold ${schoolNameSize}px ${primaryFont}`;
 								ctx.textAlign = "left";
 
-								// Text shadow
+								// Strong text shadow for school name
 								ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
-								ctx.shadowBlur = 6;
-								ctx.shadowOffsetX = 2;
-								ctx.shadowOffsetY = 2;
+								ctx.shadowBlur = 8;
+								ctx.shadowOffsetX = 3;
+								ctx.shadowOffsetY = 3;
 
 								ctx.fillText(
 									document.getElementById("schoolName").value,
@@ -771,25 +875,55 @@
 									schoolNameY
 								);
 
-								// Event name with shadow
-								ctx.font = `${eventNameSize}px Arial, sans-serif`;
+								// Event name with attractive styling
+								ctx.font = `${eventNameSize}px ${primaryFont}`;
+								ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+								ctx.shadowBlur = 6;
+								ctx.shadowOffsetX = 2;
+								ctx.shadowOffsetY = 2;
 								ctx.fillText(
 									document.getElementById("eventName").value,
 									textStartX,
 									eventNameY
 								);
 
-								// Bottom text with shadow
+								// Bottom text with attractive styling
 								const bottomY = canvas.height - margin - 25;
-								ctx.font = `bold ${bottomTextSize}px Arial, sans-serif`;
+								ctx.font = `bold ${bottomTextSize}px ${primaryFont}`;
 								ctx.textAlign = "center";
+								ctx.fillStyle = "white";
+
+								// Strong shadow for bottom text
+								ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+								ctx.shadowBlur = 8;
+								ctx.shadowOffsetX = 3;
+								ctx.shadowOffsetY = 3;
+
+								// Add subtle glow effect for bottom text
+								ctx.save();
+								ctx.shadowColor = "rgba(255, 255, 255, 0.3)";
+								ctx.shadowBlur = 15;
+								ctx.shadowOffsetX = 0;
+								ctx.shadowOffsetY = 0;
+								ctx.fillText(
+									document.getElementById("bottomText").value,
+									canvas.width / 2,
+									bottomY
+								);
+								ctx.restore();
+
+								// Main bottom text
+								ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+								ctx.shadowBlur = 8;
+								ctx.shadowOffsetX = 3;
+								ctx.shadowOffsetY = 3;
 								ctx.fillText(
 									document.getElementById("bottomText").value,
 									canvas.width / 2,
 									bottomY
 								);
 
-								// Reset shadow
+								// Reset all styling
 								ctx.shadowColor = "transparent";
 								ctx.shadowBlur = 0;
 								ctx.shadowOffsetX = 0;
@@ -827,18 +961,19 @@
 
 					// Generate ZIP file
 					const zipBlob = await zip.generateAsync({ type: "blob" });
-					
+
 					// Create download link
 					const link = document.createElement("a");
 					link.href = URL.createObjectURL(zipBlob);
-					link.download = `framed_photos_${new Date().toISOString().split('T')[0]}.zip`;
+					link.download = `framed_photos_${
+						new Date().toISOString().split("T")[0]
+					}.zip`;
 					document.body.appendChild(link);
 					link.click();
 					document.body.removeChild(link);
 
 					// Clean up
 					URL.revokeObjectURL(link.href);
-					
 				} catch (error) {
 					console.error("Error creating ZIP:", error);
 					alert("Error creating ZIP file. Please try again.");
